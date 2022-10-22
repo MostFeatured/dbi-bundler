@@ -33,7 +33,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   const out = readFileSync(bundlePath, 'utf-8');
   unlinkSync(bundlePath);
   var UglifyJS = require("uglify-js");
-  let mIn = out.replace("z", "z");
+  let mIn = out + "";
   const oReqs = [...(new Set([...mIn.matchAll(/require_[a-zA-Z]+|__getOwnPropNames|__commonJS/g)].map(x => x[0])))];
   oReqs.forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" +  Math.floor(Math.random() * 1000000).toString()));
   const result = UglifyJS.minify(mIn);
