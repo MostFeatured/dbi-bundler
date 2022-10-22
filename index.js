@@ -36,6 +36,9 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   const result = UglifyJS.minify(out);
   if (!existsSync(dist)) mkdirSync(dist, { recursive: true });
   writeFileSync(distResultPath, out);
+  result.code = result.code.replace(/__commonJS/g, Math.floor(Math.random() * 12).toString());
+  const oReqs = [...(new Set(...result.code.match(/require_[^ ]+/g)))];
+  oReqs.forEach((tReq) => result.code = result.code.replaceAll(tReq, Math.floor(Math.random() * 12).toString()));
   writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
   const package = require(path.resolve(process.cwd(), "./package.json"));
   delete package.dependencies["uglify-js"];
