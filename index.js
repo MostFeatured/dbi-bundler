@@ -42,20 +42,29 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   var UglifyJS = require("uglify-js");
 
   let mIn = out + "";
-  const oReqs = [...(new Set([...mIn.matchAll(/require_[^ ]+|__getOwnPropNames|__commonJS/g)].map(x => x[0])))];
-  oReqs.forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" +  Math.floor(Math.random() * 1000000).toString()));
+
+  [...(new Set([...mIn.matchAll(/require_[^ ]+|__getOwnPropNames|__commonJS/g)].map(x => x[0])))]
+    .forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" +  Math.floor(Math.random() * 1000000).toString()));
+
   const result = UglifyJS.minify(mIn);
+
   if (!existsSync(dist)) mkdirSync(dist, { recursive: true });
+
   writeFileSync(distResultPath, out);
   writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
+
   const package = require(path.resolve(process.cwd(), "./package.json"));
   delete package.dependencies["uglify-js"];
   delete package.dependencies["esbuild"];
+  delete package.dependencies["@mostfeatured/bundler"];
   writeFileSync(path.resolve(dist, "./package.json"), JSON.stringify(package, null, 2));
+
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
+
   if (!createExecutable) return;
   await execAsync(`npx -y pkg ${path.basename(distResultPath)}`, dist);
+  
 });
 
 module.exports.build = build;
