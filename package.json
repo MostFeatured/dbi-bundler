@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "esbuild": "^0.15.12",
+    "pkg": "^5.8.0",
     "recursive-readdir": "^2.2.2",
     "uglify-js": "^3.17.3"
   },
@@ -8,7 +9,6 @@
   "name": "dbi-bundler",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {},
   "repository": {
     "type": "git",
