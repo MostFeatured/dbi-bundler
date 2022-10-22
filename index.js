@@ -37,10 +37,10 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   if (!existsSync(dist)) mkdirSync(dist, { recursive: true });
   writeFileSync(distResultPath, out);
   writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
-  const package = require("./package.json");
+  const package = require(path.resolve(process.cwd(), "./package.json"));
   delete package.dependencies["uglify-js"];
   delete package.dependencies["esbuild"];
-  writeFileSync('./dist/package.json', JSON.stringify(package, null, 2));
+  writeFileSync(path.resolve(dist, "./package.json"), JSON.stringify(package, null, 2));
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
   if (!createExecutable) return;
