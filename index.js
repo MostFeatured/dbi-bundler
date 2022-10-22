@@ -33,12 +33,13 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   const out = readFileSync(bundlePath, 'utf-8');
   unlinkSync(bundlePath);
   var UglifyJS = require("uglify-js");
-  const result = UglifyJS.minify(out);
+  let mIn = out.replace("z", "z");
+  const oReqs = [...(new Set([...mIn.matchAll(/require_[a-zA-Z]+/g)].map(x => x[0])))];
+  oReqs.forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" +  Math.floor(Math.random() * 1000000).toString()));
+  const result = UglifyJS.minify(mIn);
   if (!existsSync(dist)) mkdirSync(dist, { recursive: true });
   writeFileSync(distResultPath, out);
-  result.code = result.code.replace(/__commonJS/g, "_" + Math.floor(Math.random() * 12).toString());
-  const oReqs = [...(new Set(...result.code.match(/require_[^ ]+/g)))];
-  oReqs.forEach((tReq) => result.code = result.code.replaceAll(tReq, "_" +  Math.floor(Math.random() * 12).toString()));
+  result.code = result.code.replace(/__commonJS/g, "_" + Math.floor(Math.random() * 1000000).toString());
   writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
   const package = require(path.resolve(process.cwd(), "./package.json"));
   delete package.dependencies["uglify-js"];
