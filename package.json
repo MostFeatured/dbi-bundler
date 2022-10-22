@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "esbuild": "^0.15.12",
+    "recursive-readdir": "^2.2.2",
+    "uglify-js": "^3.17.3"
+  }
+}
