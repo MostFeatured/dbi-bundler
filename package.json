@@ -6,8 +6,13 @@
     "uglify-js": "^3.17.3"
   },
   "types": "./index.d.ts",
+<<<<<<< Updated upstream
   "name": "dbi-bundler",
   "version": "1.0.1",
+=======
+  "name": "@mostfeatured/bundler",
+  "version": "1.0.0",
+>>>>>>> Stashed changes
   "main": "index.js",
   "scripts": {},
   "repository": {
@@ -21,5 +26,9 @@
     "url": "https://github.com/MostFeatured/dbi-bundler/issues"
   },
   "homepage": "https://github.com/MostFeatured/dbi-bundler#readme",
-  "description": "Bundles your dbi."
+  "description": "Bundles your dbi.",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }
