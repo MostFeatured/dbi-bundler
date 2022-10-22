@@ -44,7 +44,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
   if (!createExecutable) return;
-  await execAsync(`npx -g pkg ${path.basename(distResultPath)}`, dist);
+  await execAsync(`npx -y pkg ${path.basename(distResultPath)}`, dist);
 });
 
 module.exports.build = build;
