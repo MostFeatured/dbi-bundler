@@ -17,7 +17,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     const statement = recImports[i][0][0];
     const path = recImports[i][1];
     const _paths = await readFolder(path)
-    realFile = realFile.replace(statement, (_paths).map(x => `require('.\/${x.replaceAll("\\", "\/")}')`).join("; "));
+    realFile = realFile.replace(statement, (_paths).map(x => `require('.\/${x.replaceAll("\\", "\/")}')`).join("; \n"));
   }
   realFile = realFile.replace(/( *)recursiveImport,?( *)/g, " ");
   realFile = realFile.replace('const { } = require("@mostfeatured/dbi");', "");
