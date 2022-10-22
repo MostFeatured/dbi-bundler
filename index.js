@@ -45,7 +45,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   await execAsync("npm i", dist);
   if (!createExecutable) return;
   const {exec} = require("pkg");
-  await exec(`"${distResultPath}"`, `--output "${dist}"`);
+  await exec(`"${distResultPath}"`, `--out-path "${dist}"`);
   // await execAsync("npx -y pkg", dist);
   // await execAsync(`pkg ${path.basename(distResultPath)}`, dist)
 });
