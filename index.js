@@ -19,8 +19,8 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     const _paths = await readFolder(path)
     realFile = realFile.replace(statement, (_paths).map(x => `require('.\/${x.replaceAll("\\", "\/")}')`).join("; "));
   }
-  realFile = realFile.replace(/recursiveImport,?/g, "");
-  realFile = realFile.replace('const {  } = require("@mostfeatured/dbi");', "");
+  realFile = realFile.replace(/( *)recursiveImport,?( *)/g, " ");
+  realFile = realFile.replace('const { } = require("@mostfeatured/dbi");', "");
   writeFileSync(bundlePath, realFile)
   require('esbuild').buildSync({
     entryPoints: [bundlePath],
