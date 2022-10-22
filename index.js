@@ -1,4 +1,4 @@
-const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", downloadPackages = false, createExecutable = false } = {  }) => {
+const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", downloadPackages = false, createExecutable = false } = {}) => {
   const path = require("path");
   const dist = path.resolve(process.cwd(), rDist);
   const main = path.resolve(process.cwd(), rMain);
@@ -44,7 +44,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
   if (!createExecutable) return;
-  const {exec} = require("pkg");
+  const { exec } = require("pkg");
   await exec(`"${distResultPath}"`, `--out-path "${dist}"`);
   // await execAsync("npx -y pkg", dist);
   // await execAsync(`pkg ${path.basename(distResultPath)}`, dist)
