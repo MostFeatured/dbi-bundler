@@ -6,13 +6,8 @@
     "uglify-js": "^3.17.3"
   },
   "types": "./index.d.ts",
-<<<<<<< Updated upstream
-  "name": "dbi-bundler",
-  "version": "1.0.1",
-=======
   "name": "@mostfeatured/bundler",
-  "version": "1.0.0",
->>>>>>> Stashed changes
+  "version": "1.0.1",
   "main": "index.js",
   "scripts": {},
   "repository": {
