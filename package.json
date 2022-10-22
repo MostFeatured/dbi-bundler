@@ -3,6 +3,7 @@
     "esbuild": "^0.15.12",
     "pkg": "^5.8.0",
     "recursive-readdir": "^2.2.2",
+    "stuffs": "^0.1.21",
     "uglify-js": "^3.17.3"
   },
   "types": "./index.d.ts",
