@@ -42,29 +42,36 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   var UglifyJS = require("uglify-js");
 
   let mIn = out + "";
-
+  
   [...(new Set([...mIn.matchAll(/require_[^ ]+|__getOwnPropNames|__commonJS/g)].map(x => x[0])))]
-    .forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" +  Math.floor(Math.random() * 1000000).toString()));
-
-  const result = UglifyJS.minify(mIn);
-
+    .forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" + Math.floor(Math.random() * 1000000).toString()));
+  
+  writeFileSync(distMinPath, mIn);
+  const result = UglifyJS.minify(mIn, {output: {ast: true}});
+  [...mIn.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
+    let nStr = quato;
+    const inner = eval(`${all}`);
+    console.log(inner)
+    for (let i = 0; i < inner.length; i++) {
+      const c = inner[i];
+      nStr += "\\x" + (c.charCodeAt(0)).toString(16).toUpperCase();
+    }
+    nStr += quato;
+    result.code = result.code.replace(all, nStr)
+  });
   if (!existsSync(dist)) mkdirSync(dist, { recursive: true });
-
   writeFileSync(distResultPath, out);
-  writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
 
+  writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
   const package = require(path.resolve(process.cwd(), "./package.json"));
   delete package.dependencies["uglify-js"];
   delete package.dependencies["esbuild"];
   delete package.dependencies["@mostfeatured/bundler"];
   writeFileSync(path.resolve(dist, "./package.json"), JSON.stringify(package, null, 2));
-
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
-
   if (!createExecutable) return;
   await execAsync(`npx -y pkg ${path.basename(distResultPath)}`, dist);
-  
 });
 
 module.exports.build = build;
