@@ -38,7 +38,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     allowOverwrite: true,
   });
 
-  const out = readFileSync(bundlePath, 'utf-8');
+  let out = readFileSync(bundlePath, 'utf-8');
   unlinkSync(bundlePath);
 
   var UglifyJS = require("uglify-js");
@@ -50,6 +50,27 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
 
   writeFileSync(distMinPath, mIn);
   const result = UglifyJS.minify(mIn, { output: { ast: true } });
+  
+  [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
+    let nStr = quato;
+    const inner = eval(`${all}`);
+    for (let i = 0; i < inner.length; i++) {
+      const c = inner[i].toString();
+      nStr += (
+        (z = (c.charCodeAt(0)).toString(16).toUpperCase()),
+        (z.length <= 1) ? z = "0" + z : null,
+        prefix = /[a-zA-Z0-9]/.test(c) ? "x" : "u0", 
+        (z.length <= 2 && prefix == "u0") ? z = "0" + z : null,
+        `\\${prefix}` + z
+      );
+    }
+    nStr += quato;
+    result.code = result.code.replace(all, nStr)
+  });
+  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|((\??)\.([a-zA-Z_0-9]+))/g)].forEach(([_,__,___,____,all,question, propName]) => {
+    let nStr = `${question ? "?." : ""}[${JSON.stringify(propName)}]`
+    result.code = result.code.replace(all, nStr)
+  });
   [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
     let nStr = quato;
     const inner = eval(`${all}`);
