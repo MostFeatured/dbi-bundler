@@ -67,7 +67,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     nStr += quato;
     result.code = result.code.replace(all, nStr)
   });
-  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|[^\.]((\??)\.([a-zA-Z_0-9]+))/g)].forEach(([_,__,___,____,all,question, propName]) => {
+  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|[^\.]((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_,__,___,____,all,question, propName]) => {
     let nStr = `${question ? "?." : ""}[${JSON.stringify(propName)}]`
     result.code = result.code.replace(all, nStr)
   });
