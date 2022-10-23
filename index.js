@@ -50,7 +50,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
 
   writeFileSync(distMinPath, mIn);
   const result = UglifyJS.minify(mIn, { output: { ast: true } });
-  
+
   [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
     let nStr = quato;
     const inner = eval(`${all}`);
@@ -59,7 +59,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
       nStr += (
         (z = (c.charCodeAt(0)).toString(16).toUpperCase()),
         (z.length <= 1) ? z = "0" + z : null,
-        prefix = /[a-zA-Z0-9]/.test(c) ? "x" : "u0", 
+        prefix = /[a-zA-Z0-9]/.test(c) ? "x" : "u0",
         (z.length <= 2 && prefix == "u0") ? z = "0" + z : null,
         `\\${prefix}` + z
       );
@@ -67,7 +67,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     nStr += quato;
     result.code = result.code.replace(all, nStr)
   });
-  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|[^\.]((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_,__,___,____,all,question, propName]) => {
+  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|[^\.]((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_, __, ___, ____, all, question, propName]) => {
     let nStr = `${question ? "?." : ""}[${JSON.stringify(propName)}]`
     result.code = result.code.replace(all, nStr)
   });
@@ -79,7 +79,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
       nStr += (
         (z = (c.charCodeAt(0)).toString(16).toUpperCase()),
         (z.length <= 1) ? z = "0" + z : null,
-        prefix = /[a-zA-Z0-9]/.test(c) ? "x" : "u0", 
+        prefix = /[a-zA-Z0-9]/.test(c) ? "x" : "u0",
         (z.length <= 2 && prefix == "u0") ? z = "0" + z : null,
         `\\${prefix}` + z
       );
@@ -96,11 +96,13 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   delete package.dependencies["esbuild"];
   delete package.dependencies["@mostfeatured/bundler"];
   writeFileSync(path.resolve(dist, "./package.json"), JSON.stringify(package, null, 2));
-  excludes.forEach(p => { try { 
-    const dPath = path.resolve(dist, p);
-    makeSureFolderExistsSync(path.dirname(dPath));
-    writeFileSync(dPath, readFileSync(path.resolve(process.cwd(), p), "utf-8"));
-   } catch { } });
+  excludes.forEach(p => {
+    try {
+      const dPath = path.resolve(dist, p);
+      makeSureFolderExistsSync(path.dirname(dPath));
+      writeFileSync(dPath, readFileSync(path.resolve(process.cwd(), p), "utf-8"));
+    } catch { }
+  });
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
   if (!createExecutable) return;
