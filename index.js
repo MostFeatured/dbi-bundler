@@ -9,10 +9,12 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   const distResultPath = path.resolve(dist, `./${executableName.split(".").shift()}.js`)
   const distMinPath = path.resolve(dist, `./${executableName.split(".").shift()}.min.js`)
 
-  const { execAsync } = require("stuffs")
+  const { execAsync, makeSureFolderExistsSync } = require("stuffs")
   const { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } = require('fs');
   const readFolder = require('recursive-readdir');
 
+  makeSureFolderExistsSync(dist);
+  
   let realFile = readFileSync(main, 'utf-8');
   const recImports = [...realFile.matchAll(/recursiveImport\(([^)]+)\);?/g)].map(x => [x, x[1].slice(1, -1)]);
 
@@ -59,7 +61,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     nStr += quato;
     result.code = result.code.replace(all, nStr)
   });
-  if (!existsSync(dist)) mkdirSync(dist, { recursive: true });
+  
   writeFileSync(distResultPath, out);
 
   writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
