@@ -53,13 +53,18 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
     let nStr = quato;
     const inner = eval(`${all}`);
-    console.log(inner)
+    console.log({ inner, all })
     for (let i = 0; i < inner.length; i++) {
-      const c = inner[i];
+      const c = inner[i].toString();
+      console.log({ c, r: (
+        (z = (c.charCodeAt(0)).toString(16).toUpperCase()),
+        (z.length <= 1) ? z = "0" + z : null,
+        `\\${/[a-zA-Z0-9]/.test(c) ? "x" : "u0"}` + z
+      )})
       nStr += (
         (z = (c.charCodeAt(0)).toString(16).toUpperCase()),
         (z.length <= 1) ? z = "0" + z : null,
-        "\\x" + z
+        `\\${/[a-zA-Z0-9]/.test(c) ? "x" : "u0"}` + z
       );
     }
     nStr += quato;
