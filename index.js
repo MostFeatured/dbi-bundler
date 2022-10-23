@@ -42,13 +42,13 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   var UglifyJS = require("uglify-js");
 
   let mIn = out + "";
-  
+
   [...(new Set([...mIn.matchAll(/require_[^ ]+|__getOwnPropNames|__commonJS/g)].map(x => x[0])))]
     .forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" + Math.floor(Math.random() * 1000000).toString()));
   
   writeFileSync(distMinPath, mIn);
   const result = UglifyJS.minify(mIn, {output: {ast: true}});
-  [...mIn.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
+  [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
     let nStr = quato;
     const inner = eval(`${all}`);
     console.log(inner)
