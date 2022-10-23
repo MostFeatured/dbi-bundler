@@ -1,4 +1,4 @@
-const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", downloadPackages = false, createExecutable = false } = {}) => {
+const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", downloadPackages = false, createExecutable = false, excludes = [] } = {}) => {
 
   const path = require("path");
   const dist = path.resolve(process.cwd(), rDist);
@@ -31,7 +31,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     entryPoints: [bundlePath],
     bundle: true,
     platform: 'node',
-    external: ['./node_modules/*'],
+    external: ['./node_modules/*', './package.json', ...excludes],
     outfile: bundlePath,
     allowOverwrite: true,
   });
@@ -68,6 +68,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   delete package.dependencies["esbuild"];
   delete package.dependencies["@mostfeatured/bundler"];
   writeFileSync(path.resolve(dist, "./package.json"), JSON.stringify(package, null, 2));
+  excludes.forEach(p => { try { writeFileSync(path.resolve(dist, p), readFileSync(path.resolve(process.cwd(), p), "utf-8")); } catch {} });
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
   if (!createExecutable) return;
