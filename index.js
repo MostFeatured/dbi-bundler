@@ -67,12 +67,28 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     nStr += quato;
     result.code = result.code.replace(all, nStr)
   });
-  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|[^\.]((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_,__,___,____,all,question, propName]) => {
+
+  const openArrayMap = {};
+  [...result.code.match(/\.\.\.[a-zA-Z0-9]+/)].forEach((a) => {
+    const rand = "_" + (Math.random() * 10000000000) + "a";
+    if (openArrayMap[a]) return;
+    openArrayMap[a] = rand;
+    result.code = result.code.replaceAll(a, rand);
+  });
+
+  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_,__,___,____,all,question, propName]) => {
+    if (!all) return;
     let nStr = `${question ? "?." : ""}[${JSON.stringify(propName)}]`
     result.code = result.code.replace(all, nStr)
   });
-  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|[^\.]((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_,__,___,____,all,question, propName]) => {
+  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_,__,___,____,all,question, propName]) => {
+    if (!all) return;
     let nStr = `${question ? "?." : ""}[${JSON.stringify(propName)}]`
+    result.code = result.code.replace(all, nStr)
+  });
+  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|(\{|\,)(([a-zA-Z0-9_]+)\:)/gi)].forEach(([_,__,___,____,_z,all, propName]) => {
+    if (!all) return;
+    let nStr = `[${JSON.stringify(propName)}]:`;
     result.code = result.code.replace(all, nStr)
   });
   [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
@@ -91,7 +107,10 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     nStr += quato;
     result.code = result.code.replace(all, nStr)
   });
-
+  for (let oName in openArrayMap) {
+    const nName = openArrayMap[oName];
+    result.code.replaceAll(nName, oName);
+  }
   writeFileSync(distResultPath, out);
 
   writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
