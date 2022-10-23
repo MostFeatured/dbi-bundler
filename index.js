@@ -9,7 +9,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   const distResultPath = path.resolve(dist, `./${executableName.split(".").shift()}.js`)
   const distMinPath = path.resolve(dist, `./${executableName.split(".").shift()}.min.js`)
 
-  const { execAsync, makeSureFolderExistsSync } = require("stuffs")
+  const { execAsync, makeSureFolderExistsSync, makeSureFileExistsSync } = require("stuffs")
   const { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } = require('fs');
   const readFolder = require('recursive-readdir');
 
@@ -73,7 +73,11 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   delete package.dependencies["esbuild"];
   delete package.dependencies["@mostfeatured/bundler"];
   writeFileSync(path.resolve(dist, "./package.json"), JSON.stringify(package, null, 2));
-  excludes.forEach(p => { try { writeFileSync(path.resolve(dist, p), readFileSync(path.resolve(process.cwd(), p), "utf-8")); } catch { } });
+  excludes.forEach(p => { try { 
+    const dPath = path.resolve(dist, p);
+    makeSureFileExistsSync(dPath, "", "utf-8");
+    writeFileSync(dPath, readFileSync(path.resolve(process.cwd(), p), "utf-8"));
+   } catch { } });
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
   if (!createExecutable) return;
