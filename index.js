@@ -14,7 +14,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   const readFolder = require('recursive-readdir');
 
   makeSureFolderExistsSync(dist);
-  
+
   let realFile = readFileSync(main, 'utf-8');
   const recImports = [...realFile.matchAll(/recursiveImport\(([^)]+)\);?/g)].map(x => [x, x[1].slice(1, -1)]);
 
@@ -47,21 +47,25 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
 
   [...(new Set([...mIn.matchAll(/require_[^ ]+|__getOwnPropNames|__commonJS/g)].map(x => x[0])))]
     .forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" + Math.floor(Math.random() * 1000000).toString()));
-  
+
   writeFileSync(distMinPath, mIn);
-  const result = UglifyJS.minify(mIn, {output: {ast: true}});
+  const result = UglifyJS.minify(mIn, { output: { ast: true } });
   [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
     let nStr = quato;
     const inner = eval(`${all}`);
     console.log(inner)
     for (let i = 0; i < inner.length; i++) {
       const c = inner[i];
-      nStr += "\\x" + (c.charCodeAt(0)).toString(16).toUpperCase();
+      nStr += (
+        (z = (c.charCodeAt(0)).toString(16).toUpperCase()),
+        (z.length <= 1) ? z = "0" + z : null,
+        "\\x" + z
+      );
     }
     nStr += quato;
     result.code = result.code.replace(all, nStr)
   });
-  
+
   writeFileSync(distResultPath, out);
 
   writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
@@ -70,7 +74,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   delete package.dependencies["esbuild"];
   delete package.dependencies["@mostfeatured/bundler"];
   writeFileSync(path.resolve(dist, "./package.json"), JSON.stringify(package, null, 2));
-  excludes.forEach(p => { try { writeFileSync(path.resolve(dist, p), readFileSync(path.resolve(process.cwd(), p), "utf-8")); } catch {} });
+  excludes.forEach(p => { try { writeFileSync(path.resolve(dist, p), readFileSync(path.resolve(process.cwd(), p), "utf-8")); } catch { } });
   if (!downloadPackages && !createExecutable) return;
   await execAsync("npm i", dist);
   if (!createExecutable) return;
