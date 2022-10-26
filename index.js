@@ -70,8 +70,8 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   });
 
   const openArrayMap = {};
-  [...result.code.match(/\.\.\.[a-zA-Z0-9]+/)].forEach((a) => {
-    const rand = "_" + (Math.random() * 10000000000) + "a";
+  [...result.code.match(/\.\.\.[a-zA-Z0-9]+/ig)].forEach((a) => {
+    const rand = "_" + Math.floor(Math.random() * 10000000000) + "a";
     if (openArrayMap[a]) return;
     openArrayMap[a] = rand;
     result.code = result.code.replaceAll(a, rand);
@@ -110,7 +110,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   });
   for (let oName in openArrayMap) {
     const nName = openArrayMap[oName];
-    result.code.replaceAll(nName, oName);
+    result.code = result.code.replaceAll(nName, oName);
   }
   writeFileSync(distResultPath, out);
 
