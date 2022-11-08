@@ -52,7 +52,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   const result = UglifyJS.minify(mIn, { output: { ast: true } });
   writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
 
-  [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
+  [...(result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g) || [])].forEach(([all, quato, rInner]) => {
     let nStr = quato;
     const inner = eval(`${all}`);
     for (let i = 0; i < inner.length; i++) {
@@ -70,29 +70,29 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   });
 
   const openArrayMap = {};
-  [...result.code.match(/\.\.\.[a-zA-Z0-9]+/ig)].forEach((a) => {
+  [...(result.code.match(/\.\.\.[a-zA-Z0-9]+/ig) || [])].forEach((a) => {
     const rand = "_" + Math.floor(Math.random() * 10000000000) + "a";
     if (openArrayMap[a]) return;
     openArrayMap[a] = rand;
     result.code = result.code.replaceAll(a, rand);
   });
 
-  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_, __, ___, ____, all, question, propName]) => {
+  [...(result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|((\??)\.([a-zA-Z_0-9]+))/gi) || [])].forEach(([_, __, ___, ____, all, question, propName]) => {
     if (!all) return;
     let nStr = `${question ? "?." : ""}[${JSON.stringify(propName)}]`
     result.code = result.code.replace(all, nStr)
   });
-  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|((\??)\.([a-zA-Z_0-9]+))/gi)].forEach(([_, __, ___, ____, all, question, propName]) => {
+  [...(result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|((\??)\.([a-zA-Z_0-9]+))/gi) || [])].forEach(([_, __, ___, ____, all, question, propName]) => {
     if (!all) return;
     let nStr = `${question ? "?." : ""}[${JSON.stringify(propName)}]`
     result.code = result.code.replace(all, nStr)
   });
-  [...result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|(\{|\,)(([a-zA-Z0-9_]+)\:)/gi)].forEach(([_, __, ___, ____, _z, all, propName]) => {
+  [...(result.code.matchAll(/((["'])(?:(?=(\\?))\2.)*?\1)|(\{|\,)(([a-zA-Z0-9_]+)\:)/gi) || [])].forEach(([_, __, ___, ____, _z, all, propName]) => {
     if (!all) return;
     let nStr = `[${JSON.stringify(propName)}]:`;
     result.code = result.code.replace(all, nStr)
   });
-  [...result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g)].forEach(([all, quato, rInner]) => {
+  [...(result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g) || [])].forEach(([all, quato, rInner]) => {
     let nStr = quato;
     const inner = eval(`${all}`);
     for (let i = 0; i < inner.length; i++) {
@@ -120,7 +120,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   delete package.dependencies["esbuild"];
   delete package.dependencies["@mostfeatured/bundler"];
   writeFileSync(path.resolve(dist, "./package.json"), JSON.stringify(package, null, 2));
-  excludes.forEach(p => {
+  excludes?.forEach(p => {
     try {
       const dPath = path.resolve(dist, p);
       makeSureFolderExistsSync(path.dirname(dPath));
