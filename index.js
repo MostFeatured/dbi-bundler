@@ -21,8 +21,8 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
 
   for (let i = 0; i < recImports.length; i++) {
     const statement = recImports[i][0][0];
-    const path = recImports[i][1];
-    const _paths = await readFolder(path)
+    const rPath = recImports[i][1];
+    const _paths = await readFolder(rPath)
     realFile = realFile
       .replace(
         statement,
