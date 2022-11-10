@@ -23,10 +23,17 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     const statement = recImports[i][0][0];
     const path = recImports[i][1];
     const _paths = await readFolder(path)
-    realFile = realFile.replace(statement, (_paths).map(x => `require('.\/${x.replaceAll("\\", "\/")}')`).join("; \n"));
+    realFile = realFile
+      .replace(
+        statement,
+        (_paths).map(x => `require('.\/${x.replaceAll("\\", "\/")}')`)
+          .filter(x => !x.includes("/-")).join("; \n")
+      );
   }
 
-  realFile = realFile.replace(/( *)recursiveImport,?( *)/g, " ").replace('const { } = require("@mostfeatured/dbi");', "");
+  realFile = realFile.replace(/( *)recursiveImport,?( *)/g, " ")
+    .replace('const { } = require("@mostfeatured/dbi");', "")
+    .replace('let { } = require("@mostfeatured/dbi");', "");
 
   writeFileSync(bundlePath, realFile);
 
@@ -66,7 +73,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
       );
     }
     nStr += quato;
-    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch {}
+    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch { }
   });
 
   const openArrayMap = {};
@@ -106,7 +113,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
       );
     }
     nStr += quato;
-    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch {}
+    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch { }
   });
   for (let oName in openArrayMap) {
     const nName = openArrayMap[oName];
