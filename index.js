@@ -66,7 +66,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
       );
     }
     nStr += quato;
-    if (inner == eval(nStr)) result.code = result.code.replace(all, nStr);
+    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch {}
   });
 
   const openArrayMap = {};
@@ -106,7 +106,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
       );
     }
     nStr += quato;
-    if (inner == eval(nStr)) result.code = result.code.replace(all, nStr);
+    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch {}
   });
   for (let oName in openArrayMap) {
     const nName = openArrayMap[oName];
