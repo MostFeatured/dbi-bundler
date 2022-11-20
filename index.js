@@ -6,6 +6,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   const executableDir = path.dirname(main);
   const executableName = path.basename(main)
   const bundlePath = path.resolve(executableDir, `./${executableName.split(".").shift()}.bundle.js`)
+  const bundleMinPath = path.resolve(executableDir, `./${executableName.split(".").shift()}.bundle.min.js`)
   const distResultPath = path.resolve(dist, `./${executableName.split(".").shift()}.js`)
   const distMinPath = path.resolve(dist, `./${executableName.split(".").shift()}.min.js`)
   const distCMinPath = path.resolve(dist, `./${executableName.split(".").shift()}.cmin.js`)
@@ -21,21 +22,28 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
 
   for (let i = 0; i < recImports.length; i++) {
     const statement = recImports[i][0][0];
-    const rPath = recImports[i][1];
-    const _paths = await readFolder(rPath)
-    realFile = realFile
-      .replace(
-        statement,
-        (_paths).map(x => `require('.\/${x.replaceAll("\\", "\/")}')`)
-          .filter(x => !x.includes("/-")).join("; \n")
-      );
+    const path = recImports[i][1];
+    const _paths = await readFolder(path)
+    realFile = realFile.replace(statement, (_paths).map(x => `require('.\/${x.replaceAll("\\", "\/")}')`).join("; \n"));
   }
 
-  realFile = realFile.replace(/( *)recursiveImport,?( *)/g, " ")
-    .replace('const { } = require("@mostfeatured/dbi");', "")
-    .replace('let { } = require("@mostfeatured/dbi");', "");
+  realFile = realFile.replace(/( *)recursiveImport,?( *)/g, " ").replace('const { } = require("@mostfeatured/dbi");', "");
 
   writeFileSync(bundlePath, realFile);
+
+  require('esbuild').buildSync({
+    entryPoints: [bundlePath],
+    bundle: true,
+    platform: 'node',
+    external: ['./node_modules/*', './package.json', ...excludes],
+    outfile: bundleMinPath,
+    allowOverwrite: true,
+    minify: true,
+    minifyIdentifiers: true,
+    minifySyntax: true,
+    minifyWhitespace: true,
+    // sourcemap: true,
+  });
 
   require('esbuild').buildSync({
     entryPoints: [bundlePath],
@@ -49,15 +57,17 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   let out = readFileSync(bundlePath, 'utf-8');
   unlinkSync(bundlePath);
 
-  var UglifyJS = require("uglify-js");
+  let outMin = readFileSync(bundleMinPath, 'utf-8');
+  unlinkSync(bundleMinPath);
 
   let mIn = out + "";
 
   [...(new Set([...mIn.matchAll(/require_[^ ]+|__getOwnPropNames|__commonJS/g)].map(x => x[0])))]
     .forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" + Math.floor(Math.random() * 1000000).toString()));
 
-  const result = UglifyJS.minify(mIn, { output: { ast: true } });
-  writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n"));
+  const result = { code: outMin };
+  // console.log(result);
+  writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n").replace(/(\\n|\s)*$/, ""));
 
   [...(result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g) || [])].forEach(([all, quato, rInner]) => {
     let nStr = quato;
@@ -73,7 +83,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
       );
     }
     nStr += quato;
-    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch { }
+    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch {}
   });
 
   const openArrayMap = {};
@@ -113,7 +123,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
       );
     }
     nStr += quato;
-    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch { }
+    try { if (inner == eval(nStr)) result.code = result.code.replace(all, nStr); } catch {}
   });
   for (let oName in openArrayMap) {
     const nName = openArrayMap[oName];
