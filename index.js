@@ -54,20 +54,20 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
     allowOverwrite: true,
   });
 
-  let out = readFileSync(bundlePath, 'utf-8');
+  let out = readFileSync(bundlePath, 'utf-8').toString();
   unlinkSync(bundlePath);
 
-  let outMin = readFileSync(bundleMinPath, 'utf-8');
+  let outMin = readFileSync(bundleMinPath, 'utf-8').toString().replaceAll("\n", "\\n").replace(/(\\n|\s)*$/, "");
   unlinkSync(bundleMinPath);
 
-  let mIn = out + "";
+  let mIn = out;
 
   [...(new Set([...mIn.matchAll(/require_[^ ]+|__getOwnPropNames|__commonJS/g)].map(x => x[0])))]
     .forEach((tReq) => mIn = mIn.replaceAll(tReq, "_" + Math.floor(Math.random() * 1000000).toString()));
 
   const result = { code: outMin };
   // console.log(result);
-  writeFileSync(distMinPath, result.code.replaceAll("\n", "\\n").replace(/(\\n|\s)*$/, ""));
+  writeFileSync(distMinPath, result.code);
 
   [...(result.code.matchAll(/(["'])(?:(?=(\\?))\2.)*?\1/g) || [])].forEach(([all, quato, rInner]) => {
     let nStr = quato;
@@ -131,7 +131,7 @@ const build = (async ({ dist: rDist = "./dist", main: rMain = "./index.js", down
   }
   writeFileSync(distResultPath, out);
 
-  writeFileSync(distCMinPath, result.code.replaceAll("\n", "\\n"));
+  writeFileSync(distCMinPath, result.code.replaceAll("\n", "\\n").replace(/(\\n|\s)*$/, ""));
   const package = require(path.resolve(process.cwd(), "./package.json"));
   delete package.dependencies["uglify-js"];
   delete package.dependencies["esbuild"];
