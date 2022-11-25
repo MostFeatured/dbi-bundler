@@ -1,1 +1,1 @@
-export function build(obj: { dist: string, main: string, downloadPackages?: boolean, createExecutable?: boolean, excludes?: string[] }): Promise<void>
+export function build(obj: { dist: string, main: string, createExecutable?: boolean, excludes?: string[] }): Promise<void>
