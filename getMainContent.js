@@ -9,7 +9,9 @@ module.exports = async function getMainContent(mainPath, bundlePath) {
     const statement = recImports[i][0][0];
     const path = recImports[i][1];
     const _paths = await readFolder(path)
-    realFile = realFile.replace(statement, (_paths).map(x => `require('.\/${x.replaceAll("\\", "\/")}')`).join("; \n"));
+    realFile = realFile.replace(statement, (_paths).map(x => 
+      x.replaceAll("\\", "\/").includes("\/-") ? null : `require('.\/${x.replaceAll("\\", "\/")}')`
+      ).filter(x => x).join("; \n"));
   }
 
   realFile = realFile.replace(/( *)recursiveImport,?( *)/g, " ").replace('const { } = require("@mostfeatured/dbi");', "");
